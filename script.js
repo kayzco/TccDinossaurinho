@@ -1,15 +1,25 @@
 let bolinha = document.getElementById("bolinha");
+let chaoEl = document.getElementById("chao");
+
 let posicaoX = 150;
 let posicaoY = 0;
 let velocidadeY = 0;
 let gravidade = 0.7;
 let forcaPulo = -15;
 let noChao = true;
+
+let velocidadeChao = 5;   // controla o quão rápido o cenário "anda"
+let chaoOffset = 0;
+
+function calcularChao() {
+    return chaoEl.offsetTop - bolinha.offsetHeight;
+}
+
 bolinha.style.left = posicaoX + "px";
+posicaoY = calcularChao();
 bolinha.style.top = posicaoY + "px";
 
 document.addEventListener("keydown", function(event) {
-
     if (event.key == "ArrowRight") posicaoX += 10;
     if (event.key == "ArrowLeft") posicaoX -= 10;
 
@@ -19,14 +29,14 @@ document.addEventListener("keydown", function(event) {
     }
 
     bolinha.style.left = posicaoX + "px";
-
 });
 
-function pular() {
+function loop() {
+    // física do pulo
     velocidadeY += gravidade;
     posicaoY += velocidadeY;
 
-    let chao = 572;
+    let chao = calcularChao();
     if (posicaoY >= chao) {
         posicaoY = chao;
         velocidadeY = 0;
@@ -34,12 +44,16 @@ function pular() {
     }
 
     bolinha.style.top = posicaoY + "px";
-    requestAnimationFrame(pular);
+
+    // movimento do cenário (efeito de "andar")
+    chaoOffset -= velocidadeChao;
+    chaoEl.style.backgroundPositionX = chaoOffset + "px";
+
+    requestAnimationFrame(loop);
 }
 
-function atualizarPosicao() {
-    bolinha.style.left = posicaoX + "px";
-    bolinha.style.top = posicaoY + "px";
-}
+window.addEventListener("resize", () => {
+    if (noChao) posicaoY = calcularChao();
+});
 
-pular();
+loop();
