@@ -1,6 +1,6 @@
 let bolinha = document.getElementById("bolinha");
 let posicaoX = 150;
-let posicaoY = 0;
+let posicaoY = 1;
 let velocidadeY = 0;
 let gravidade = 0.7;
 let forcaPulo = -15;
