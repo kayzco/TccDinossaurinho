@@ -1,5 +1,6 @@
 let bolinha = document.getElementById("bolinha");
 let chaoEl = document.getElementById("chao");
+let fundoEl = document.getElementById("fundo");
 
 let posicaoX = 150;
 let posicaoY = 0;
@@ -8,8 +9,11 @@ let gravidade = 0.7;
 let forcaPulo = -15;
 let noChao = true;
 
-let velocidadeChao = 5;   // controla o quão rápido o cenário "anda"
+let velocidadeChao = 5;
 let chaoOffset = 0;
+
+let velocidadeFundo = 0.5;   // bem mais lento que o chão
+let fundoOffset = 0;
 
 function calcularChao() {
     return chaoEl.offsetTop - bolinha.offsetHeight;
@@ -32,7 +36,6 @@ document.addEventListener("keydown", function(event) {
 });
 
 function loop() {
-    // física do pulo
     velocidadeY += gravidade;
     posicaoY += velocidadeY;
 
@@ -45,9 +48,11 @@ function loop() {
 
     bolinha.style.top = posicaoY + "px";
 
-    // movimento do cenário (efeito de "andar")
     chaoOffset -= velocidadeChao;
     chaoEl.style.backgroundPositionX = chaoOffset + "px";
+
+    fundoOffset -= velocidadeFundo;
+    fundoEl.style.backgroundPositionX = fundoOffset + "px";
 
     requestAnimationFrame(loop);
 }
