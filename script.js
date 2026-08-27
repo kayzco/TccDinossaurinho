@@ -1,21 +1,21 @@
 let bolinha = document.getElementById("bolinha");
-let posicaoX = 0;
-let posicaoY = (window.innerHeight / 2) - (bolinha.offsetHeight / 2);
+let posicaoX = 150;
+let posicaoY = 0;
 let velocidadeY = 0;
-let gravidade = 0.8;
+let gravidade = 0.7;
 let forcaPulo = -15;
 let noChao = true;
 bolinha.style.left = posicaoX + "px";
 bolinha.style.top = posicaoY + "px";
 
-atualizarPosicao();
 document.addEventListener("keydown", function(event) {
 
     if (event.key == "ArrowRight") posicaoX += 10;
     if (event.key == "ArrowLeft") posicaoX -= 10;
-    if (event.key == "ArrowUp" && noChao) {
+
+    if ((event.key == "ArrowUp" || event.code == "Space") && noChao) {
         velocidadeY = forcaPulo;
-        noChao = false
+        noChao = false;
     }
 
     bolinha.style.left = posicaoX + "px";
@@ -26,7 +26,7 @@ function pular() {
     velocidadeY += gravidade;
     posicaoY += velocidadeY;
 
-    let chao = (window.innerHeight / 2) - (bolinha.offsetHeight / 2);
+    let chao = 572;
     if (posicaoY >= chao) {
         posicaoY = chao;
         velocidadeY = 0;
