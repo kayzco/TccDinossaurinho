@@ -12,7 +12,7 @@ let noChao = true;
 let velocidadeChao = 5;
 let chaoOffset = 0;
 
-let velocidadeFundo = 0.5;   // bem mais lento que o chão
+let velocidadeFundo = 0.5;   
 let fundoOffset = 0;
 
 function calcularChao() {

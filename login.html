@@ -1,0 +1,90 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Tcc Dinossaurinho</title>
+
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+    <div id="login">
+
+        <h1>Tcc Dinossaurinho</h1>
+
+        <form action="login.php" method="POST">
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+            >
+
+            <input
+                type="password"
+                name="senha"
+                placeholder="Senha"
+                required
+            >
+
+            <button type="submit">Entrar</button>
+
+        </form>
+
+        <p>Não tem uma conta?</p>
+
+        <a href="cadastro.html">Cadastrar</a>
+
+    </div>
+
+</body>
+
+</html>
+
+<style> * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #c0f1ba;
+}
+
+#login {
+    width: 400px;
+
+    padding: 40px;
+
+    background-color: white;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#login h1 {
+    text-align: center;
+}
+
+#login input {
+    padding: 10px;
+}
+
+#login button {
+    padding: 10px;
+    cursor: pointer;
+}</style>
