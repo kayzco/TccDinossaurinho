@@ -19,6 +19,24 @@ body {
     background-color: white;
 }
 
+#mensagemInicio {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    font-family: sans-serif;
+    font-size: 24px;
+    color: black;
+
+    animation: piscar 1s infinite;
+}
+
+@keyframes piscar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 #bolinha {
     width: 150px;
     height: 150px;
