@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Cadastro - Tcc Dinossaurinho</title>
+
+    <link rel="stylesheet" href="cadastro.css">
+</head>
+
+<body>
+
+    <div id="cadastro">
+
+        <h1>Criar conta</h1>
+
+        <form action="cadastro.php" method="POST"> 
+            <input type="text" name="nome" placeholder="Nome" required >
+            <input type="email" name="email" placeholder="Email" required > 
+            <input type="password" name="senha" placeholder="Senha" required > 
+            <button type="submit">Cadastrar</button> </form>
+        <p>Já tem uma conta?</p>
+
+        <button>Voltar para o login</button>
+
+    </div>
+
+</body>
+
+</html>
+
+<style>  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #384d2f;
+}
+
+#cadastro {
+    width: 400px;
+
+    padding: 40px;
+
+    background-color: white;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#cadastro h1 {
+    text-align: center;
+}
+
+#cadastro input {
+    padding: 10px;
+}
+
+#cadastro button {
+    padding: 10px;
+    cursor: pointer;
+}</style>

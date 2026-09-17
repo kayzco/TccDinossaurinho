@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Tcc Dinossaurinho</title>
+
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+
+    <div id="login">
+
+        <h1>Login</h1>
+
+        <form action="login.php" method="POST">
+
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                required
+            >
+
+            <input
+                type="password"
+                name="senha"
+                placeholder="Password"
+                required
+            >
+
+
+            <button type="submit">Login</button>
+
+        </form>
+
+        <p>Don't have an account? <a href="cadastro.html">Register</a></p>
+
+    </div>
+
+</body>
+
+</html>
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    width: 100vw;
+    height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-image: url("semnome.jpg");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+
+    font-family: Arial, sans-serif;
+}
+
+/* Caixa do login */
+#login {
+    width: 350px;
+
+    padding: 30px;
+
+    background-color: rgba(255, 255, 255, 0.35);
+
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 15px;
+
+    backdrop-filter: blur(8px);
+
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Título */
+#login h1 {
+    text-align: center;
+    font-size: 25px;
+    color: #0e2011;
+
+    margin-bottom: 5px;
+}
+
+/* Formulário */
+#login form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* Campos */
+#login input[type="email"],
+#login input[type="password"] {
+    width: 100%;
+
+    padding: 10px 5px;
+
+    border: none;
+    border-bottom: 1px solid #1d301d;
+
+    background: transparent;
+
+    outline: none;
+
+    color: #0f2412;
+}
+
+/* Texto dentro dos campos */
+#login input::placeholder {
+    color: #233a25;
+}
+
+
+#login a {
+    color: #1c2c14;
+    text-decoration: none;
+}
+
+#login a:hover {
+    text-decoration: underline;
+}
+
+
+#login button {
+    padding: 10px;
+
+    border: none;
+    border-radius: 5px;
+
+    background-color: #163014;
+    color: white;
+
+    cursor: pointer;
+
+    font-size: 14px;
+}
+
+#login button:hover {
+    background-color: #091a0a;
+}
+
+
+#login p {
+    text-align: center;
+
+    font-size: 11px;
+
+    color: #304656;
+}
+</style>

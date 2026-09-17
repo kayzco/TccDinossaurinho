@@ -14,6 +14,7 @@ let noChao = true;
 let jogoIniciado = false;
 let tempoInicio = 0;
 
+<<<<<<< HEAD
 // --- velocidade do cenário (sempre parte do mesmo valor) ---
 const VELOCIDADE_INICIAL = 3;
 const ACELERACAO = 0.05;      // quanto ganha de velocidade por segundo
@@ -21,6 +22,9 @@ const VELOCIDADE_MAXIMA = 15; // teto pra não ficar impossível
 
 let velocidadeChao = 0;
 let chaoOffset = 0;
+=======
+let velocidadeFundo = 0.5;   
+>>>>>>> 0f71b3b92350fd191ac61a645f7bc1806a29f1b1
 let fundoOffset = 0;
 
 function calcularChao() {
