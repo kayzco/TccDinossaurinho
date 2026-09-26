@@ -1,6 +1,6 @@
-let bolinha = document.getElementById("bolinha");
-let chaoEl = document.getElementById("chao");
-let fundoEl = document.getElementById("fundo");
+const bolinha = document.getElementById("bolinha");
+const chaoEl = document.getElementById("chao");
+const fundoEl = document.getElementById("fundo");
 
 let posicaoX = 150;
 let posicaoY = 0;

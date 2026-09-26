@@ -1,30 +1,20 @@
-
 <?php
 
 session_start();
+require "config.php";
 
-$servidor = "localhost";
-$usuario = "root";
-$senha = "";
-$banco = "tcc_dinossaurinho";
+$email = trim($_POST["email"] ?? "");
+$senhaDigitada = $_POST["senha"] ?? "";
 
-$conexao = new mysqli($servidor, $usuario, $senha, $banco);
-
-if ($conexao->connect_error) {
-    die("Erro na conexão com o banco de dados.");
+if ($email === "" || $senhaDigitada === "") {
+    echo "<script> alert('Preencha todos os campos!'); window.history.back(); </script>";
+    exit;
 }
 
-$email = $_POST["email"];
-$senhaDigitada = $_POST["senha"];
-
 $sql = "SELECT * FROM usuarios WHERE email = ?";
-
 $stmt = $conexao->prepare($sql);
-
 $stmt->bind_param("s", $email);
-
 $stmt->execute();
-
 $resultado = $stmt->get_result();
 
 if ($resultado->num_rows > 0) {
@@ -36,26 +26,19 @@ if ($resultado->num_rows > 0) {
         $_SESSION["usuario_id"] = $usuario["id"];
         $_SESSION["nome"] = $usuario["nome"];
 
-        header("Location: index.html");
+        header("Location: index.php");
         exit;
 
     } else {
-
-        echo "Senha incorreta.";
-
+        echo "<script> alert('Senha incorreta!'); window.history.back(); </script>";
     }
 
 } else {
-
-    echo "Usuário não encontrado.";
-
+    echo "<script> alert('Usuário inexistente!'); window.history.back(); </script>";
 }
 
 $stmt->close();
 $conexao->close();
 
 ?>
-
-
-
 
