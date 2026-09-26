@@ -25,11 +25,6 @@ if (!isset($_SESSION["usuario_id"])) {
     <div id="fundo"></div>
     <div id="chao"></div>
     <img id="bolinha" src="dino1.gif">
-
-    <div id="hud">
-        <span id="nomeJogador">Olá, <?php echo htmlspecialchars($_SESSION["nome"]); ?></span>
-        <a id="sair" href="logout.php">Sair</a>
-    </div>
 </div>
 
     <script src="script.js"></script>
