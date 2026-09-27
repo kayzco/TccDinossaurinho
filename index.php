@@ -1,11 +1,7 @@
 <?php
 session_start();
-
-// Protege o jogo: sem login, não entra
-if (!isset($_SESSION["usuario_id"])) {
-    header("Location: login.html");
-    exit;
-}
+require_once "auth.php";
+exigirLogin();
 ?>
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -25,6 +21,12 @@ if (!isset($_SESSION["usuario_id"])) {
     <div id="fundo"></div>
     <div id="chao"></div>
     <img id="bolinha" src="dino1.gif">
+
+    <div id="hud">
+    <span id="nomeJogador">Olá, <?php echo htmlspecialchars(nomeUsuarioLogado()); ?></span>
+    <a id="sair" href="home.php">Início</a>
+    <a id="sair" href="logout.php">Sair</a>
+</div>
 </div>
 
     <script src="script.js"></script>
