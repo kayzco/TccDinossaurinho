@@ -1,58 +1,36 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+
+#inicio {
+    position: relative; z-index: 2;
+    width: min(330px, 90vw);
+    margin: 0 0 0 clamp(16px, 7vw, 120px);
+    padding-top: 6vh;
+    display: flex; flex-direction: column; align-items: stretch; gap: 30px;
 }
 
-body {
-    width: 100vw;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #384d2f;
-    font-family: Arial, sans-serif;
-}
-
-#home {
-    width: 400px;
-    padding: 40px;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-    border-radius: 10px;
+.logo {
+    position: relative;
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 26px 18px 20px;
+    background: linear-gradient(#6f727a, #4c4f56);
+    border: 5px solid #2a2c30;
+    border-radius: 12px;
+    box-shadow: 0 7px 0 #17181a, inset 0 0 0 3px #7f838c;
     text-align: center;
 }
 
-#home h1 {
-    font-size: 24px;
-    color: #163014;
+.logo::before {
+    content: ""; position: absolute; left: 10px; right: 10px; top: -9px; height: 14px;
+    background: #4a9a34; border: 3px solid #1d4a14; border-radius: 8px;
+}
+.logo .tcc {
+    font-size: 34px; letter-spacing: 3px;
+    color: #f3e5b5;
+    text-shadow: 3px 3px 0 #7d6c3a, -2px -2px 0 #3a321e, 2px -2px 0 #3a321e, -2px 2px 0 #3a321e;
+}
+.logo .nome {
+    font-size: 14px; letter-spacing: 1px; text-transform: uppercase;
+    color: #86d85a;
+    text-shadow: 3px 3px 0 #1d4a14, -2px -2px 0 #1d4a14, 2px -2px 0 #1d4a14, -2px 2px 0 #1d4a14;
 }
 
-.pontuacao {
-    font-size: 15px;
-    color: #333;
-}
-
-#menu {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-#menu a {
-    padding: 10px;
-    background-color: #163014;
-    color: white;
-    text-decoration: none;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-#menu a:hover {
-    background-color: #091a0a;
-}
+.dino-menu { left: clamp(380px, 42vw, 720px); height: 34vh; }

@@ -1,5 +1,6 @@
 <?php
 require_once "auth.php";
+require_once "icones.php";
 redirecionarSeLogado();
 ?>
 <!DOCTYPE html>
@@ -7,18 +8,40 @@ redirecionarSeLogado();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Tcc Dinossaurinho</title>
+    <title>Login - TCC Dinossaurinho</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="tema.css">
     <link rel="stylesheet" href="login.css">
 </head>
-<body>
-    <div id="login">
-        <h1>Login</h1>
-        <form action="processar_login.php" method="POST">
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="senha" placeholder="Password" required>
-            <button type="submit">Login</button>
-        </form>
-        <p>nao tem uma conta? <a href="cadastro.php"> clica aq meo</a></p>
+<body class="tela">
+    <div class="cenario"></div>
+    <div class="solo"></div>
+
+    <div class="dino-balao">
+        <span class="balao">&hearts;</span>
+        <img class="dino-menu" src="dinossauro.png" alt="">
     </div>
+
+    <main class="centro">
+        <section class="painel">
+            <h1>Bem-vindo!</h1>
+            <p class="sub">Faça login para continuar</p>
+
+            <form class="form" action="processar_login.php" method="POST">
+                <label class="campo"><?= icone("mail") ?>
+                    <input type="email" name="email" placeholder="E-mail" required>
+                </label>
+                <label class="campo"><?= icone("lock") ?>
+                    <input type="password" name="senha" placeholder="Senha" required>
+                </label>
+                <button class="btn btn-verde btn-centro" type="submit">Entrar</button>
+            </form>
+
+            <p class="ou">ou</p>
+            <a class="btn btn-centro" href="cadastro.php">Cadastrar</a>
+        </section>
+    </main>
 </body>
 </html>

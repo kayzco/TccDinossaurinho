@@ -23,9 +23,9 @@ let chaoOffset = 0;
 let fundoOffset = 0;
 
 
-let margemDino = 0;  
+let margemDino = 0;   
 let caixaDino = { esq: 0, dir: 1, topo: 0, base: 1 };
-let margemChao = 0;  
+let margemChao = 0;   // f
 
 function medirMargem(img, lado) {
     try {
@@ -98,10 +98,11 @@ carregarImagem(urlChao, (img) => {
     if (noChao) posicaoY = calcularChao();
 });
 
+
 const POSICAO_SUPERFICIE = 0.62;
 
-
-const AFUNDAR_DINO = 25;
+/
+const AFUNDAR_DINO = 70;
 
 function posicionarChao() {
     let alturaTela = document.getElementById("jogo").offsetHeight;
@@ -146,9 +147,64 @@ let pontos = 0;
 let jogoEl = document.getElementById("jogo");
 let mensagemEl = document.getElementById("mensagemInicio");
 let pontosEl = document.getElementById("pontos");
+let overlayEl = document.getElementById("overlay");
+let overlayTituloEl = document.getElementById("overlayTitulo");
+let overlayTextoEl = document.getElementById("overlayTexto");
+let grupoPausaEl = document.getElementById("grupoPausa");
+let grupoFimEl = document.getElementById("grupoFim");
+
+let pausado = false;
+let pausadoEm = 0;
+let recorde = (typeof RECORDE_INICIAL !== "undefined") ? RECORDE_INICIAL : 0;
+
+function formatarPontos(n) {
+    return String(Math.floor(n)).padStart(5, "0");
+}
+
+function mostrarOverlay(titulo, texto, modo) {
+    overlayTituloEl.textContent = titulo;
+    overlayTextoEl.textContent = texto;
+    grupoPausaEl.classList.toggle("oculto", modo != "pausa");
+    grupoFimEl.classList.toggle("oculto", modo != "fim");
+    overlayEl.classList.remove("oculto");
+}
+
+function esconderOverlay() {
+    overlayEl.classList.add("oculto");
+}
+
+function pausar() {
+    if (!jogoIniciado || fimDeJogo || pausado) return;
+    pausado = true;
+    pausadoEm = performance.now();
+    mostrarOverlay("Pausado", "", "pausa");
+}
+
+function continuar() {
+    if (!pausado) return;
+    
+    tempoInicio += performance.now() - pausadoEm;
+    pausado = false;
+    esconderOverlay();
+}
+
+document.getElementById("btnPausa").addEventListener("click", function() {
+    this.blur();
+    pausar();
+});
+document.getElementById("btnContinuar").addEventListener("click", function() {
+    this.blur();
+    continuar();
+});
+document.getElementById("btnReiniciar").addEventListener("click", function() {
+    this.blur();
+    reiniciarJogo();
+});
+document.addEventListener("visibilitychange", () => { if (document.hidden) pausar(); });
 
 
-const AFUNDAR_OBSTACULO = 50;
+
+const AFUNDAR_OBSTACULO = 5;
 
 function superficieChao() {
     return chaoEl.offsetTop + chaoEl.offsetHeight * margemChao + AFUNDAR_DINO + AFUNDAR_OBSTACULO;
@@ -224,10 +280,23 @@ function terminarJogo() {
     fimDeJogo = true;
     momentoDaMorte = performance.now();
     velocidadeChao = 0;
-    if (mensagemEl) {
-        mensagemEl.textContent = "Fim de jogo! Pontos: " + Math.floor(pontos) + " — pressione espaço para jogar de novo";
-        mensagemEl.style.display = "block";
-    }
+
+    let final = Math.floor(pontos);
+    let novoRecorde = final > recorde;
+    if (novoRecorde) recorde = final;
+
+    mostrarOverlay(
+        "Fim de jogo",
+        "Pontos: " + final + "\nRecorde: " + recorde + (novoRecorde ? "\nNovo recorde!" : ""),
+        "fim"
+    );
+
+    
+    fetch("salvar_pontuacao.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "pontos=" + final
+    }).catch(() => {});
 }
 
 function reiniciarJogo() {
@@ -236,6 +305,8 @@ function reiniciarJogo() {
     proximoObstaculoEm = DISTANCIA_MIN;
     pontos = 0;
     fimDeJogo = false;
+    esconderOverlay();
+    if (pontosEl) pontosEl.textContent = formatarPontos(0);
     iniciarJogo();
 }
 
@@ -248,6 +319,12 @@ function iniciarJogo() {
 }
 
 document.addEventListener("keydown", function(event) {
+    if (event.key == "Escape" || event.code == "KeyP") {
+        if (pausado) continuar(); else pausar();
+        return;
+    }
+    if (pausado) return;
+
     if (event.key == "ArrowRight") posicaoX += 10;
     if (event.key == "ArrowLeft") posicaoX -= 10;
 
@@ -269,6 +346,11 @@ document.addEventListener("keydown", function(event) {
 });
 
 function loop(agora) {
+    if (pausado) {
+        requestAnimationFrame(loop);
+        return;
+    }
+
     velocidadeY += gravidade;
     posicaoY += velocidadeY;
 
@@ -297,7 +379,7 @@ function loop(agora) {
         atualizarObstaculos();
 
         pontos += velocidadeChao * 0.05;
-        if (pontosEl) pontosEl.textContent = Math.floor(pontos);
+        if (pontosEl) pontosEl.textContent = formatarPontos(pontos);
 
         if (colidiu()) terminarJogo();
     }
