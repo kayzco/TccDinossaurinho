@@ -101,7 +101,7 @@ carregarImagem(urlChao, (img) => {
 
 const POSICAO_SUPERFICIE = 0.62;
 
-/
+
 const AFUNDAR_DINO = 70;
 
 function posicionarChao() {
