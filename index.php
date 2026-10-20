@@ -20,7 +20,7 @@ exigirLogin();
 <div id="jogo">
     <div id="fundo"></div>
     <div id="chao"></div>
-    <img id="bolinha" src="dino1.gif">
+    <img id="bolinha" src="dinossauro.jpeg">
 
     <div id="hud">
     <span id="nomeJogador">Olá, <?php echo htmlspecialchars(nomeUsuarioLogado()); ?></span>
