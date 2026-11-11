@@ -24,7 +24,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TCC Dinossaurinho</title>
+    <title>teste TCC Dinossaurinho</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +40,12 @@ try {
     <div id="chao"></div>
     <img id="bolinha" src="dinossauro.png">
     <div id="pontos">00000</div>
+    <div id="estrelas">★ 0</div>
+
+    <div id="infoEstrela" class="oculto">
+        <div class="info-titulo">★ Você sabia? (Era Jurássica)</div>
+        <p id="infoEstrelaTexto"></p>
+    </div>
     <div id="mensagemInicio">Pressione espaço para começar</div>
 
     <div id="hud">

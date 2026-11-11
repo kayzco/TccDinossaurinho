@@ -147,6 +147,9 @@ let pontos = 0;
 let jogoEl = document.getElementById("jogo");
 let mensagemEl = document.getElementById("mensagemInicio");
 let pontosEl = document.getElementById("pontos");
+let estrelasEl = document.getElementById("estrelas");
+let infoEl = document.getElementById("infoEstrela");
+let infoTextoEl = document.getElementById("infoEstrelaTexto");
 let overlayEl = document.getElementById("overlay");
 let overlayTituloEl = document.getElementById("overlayTitulo");
 let overlayTextoEl = document.getElementById("overlayTexto");
@@ -275,11 +278,137 @@ function colidiu() {
     return false;
 }
 
+// --- estrelinhas (colecionáveis com curiosidades sobre a Era Jurássica) ---
+const ESTRELA_IMAGEM = "estrela.png";   // troque pelo seu PNG quando quiser
+const ESTRELA_TAMANHO = 60;
+const ESTRELA_ALTURA_MIN = 120;          // distância acima do chão (px)
+const ESTRELA_ALTURA_MAX = 300;
+const ESTRELA_DISTANCIA_MIN = 1800;      // distância percorrida entre uma estrela e outra
+const ESTRELA_DISTANCIA_MAX = 4200;
+const ESTRELA_BONUS = 50;
+const INFO_DURACAO_MS = 7000;
+
+const CURIOSIDADES = [
+    "A Era Jurássica durou de cerca de 201 a 145 milhões de anos atrás.",
+    "O nome Jurássico vem das montanhas do Jura, entre a França e a Suíça, onde rochas dessa época foram estudadas.",
+    "O T. rex NÃO viveu no Jurássico! Ele é do Cretáceo, e está mais perto de nós no tempo do que do Stegosaurus.",
+    "No Jurássico, o supercontinente Pangeia começou a se partir, abrindo caminho para o Oceano Atlântico.",
+    "O Archaeopteryx, uma das primeiras aves conhecidas, viveu há cerca de 150 milhões de anos, no fim do Jurássico.",
+    "Os saurópodes, como Diplodocus e Brachiosaurus, eram gigantes de pescoço comprido que comiam plantas e chegavam a mais de 20 metros.",
+    "O Stegosaurus tinha placas nas costas e espinhos na cauda para se defender de predadores como o Allosaurus.",
+    "O Allosaurus era um dos maiores predadores do Jurássico e caçava em terra firme.",
+    "Pterossauros, ictiossauros e plesiossauros não eram dinossauros: eram répteis que voavam ou viviam no mar.",
+    "O clima do Jurássico era quente e úmido, e as florestas eram de samambaias, cicas e coníferas.",
+    "Ainda não existiam flores no Jurássico! As plantas com flores só surgiram depois, no Cretáceo.",
+    "Enquanto os dinossauros dominavam a Terra, os mamíferos eram pequenininhos e viviam escondidos."
+];
+
+let estrelas = [];
+let proximaEstrelaEm = 0;
+let estrelasColetadas = 0;
+let fatosRestantes = [];
+let infoTimer = null;
+
+function sortearEstrela() {
+    proximaEstrelaEm = ESTRELA_DISTANCIA_MIN + Math.random() * (ESTRELA_DISTANCIA_MAX - ESTRELA_DISTANCIA_MIN);
+}
+sortearEstrela();
+
+function proximoFato() {
+    if (fatosRestantes.length == 0) fatosRestantes = CURIOSIDADES.slice();
+    let i = Math.floor(Math.random() * fatosRestantes.length);
+    return fatosRestantes.splice(i, 1)[0];
+}
+
+function criarEstrela() {
+    let el = document.createElement("img");
+    el.className = "estrela";
+    el.src = ESTRELA_IMAGEM;
+    el.style.width = ESTRELA_TAMANHO + "px";
+    el.style.height = ESTRELA_TAMANHO + "px";
+    jogoEl.appendChild(el);
+    let altura = ESTRELA_ALTURA_MIN + Math.random() * (ESTRELA_ALTURA_MAX - ESTRELA_ALTURA_MIN);
+    estrelas.push({ el: el, x: jogoEl.offsetWidth, altura: altura });
+}
+
+function atualizarEstrelas() {
+    proximaEstrelaEm -= velocidadeChao;
+    if (proximaEstrelaEm <= 0) {
+        // não nasce colada num obstáculo
+        let livre = obstaculos.every(o => o.x < jogoEl.offsetWidth - 350);
+        if (livre) {
+            criarEstrela();
+            sortearEstrela();
+        } else {
+            proximaEstrelaEm = 150;
+        }
+    }
+
+    let d = bolinha.getBoundingClientRect();
+    let j = jogoEl.getBoundingClientRect();
+    let dino = {
+        esq: d.left - j.left + caixaDino.esq * d.width,
+        dir: d.left - j.left + caixaDino.dir * d.width,
+        topo: d.top - j.top + caixaDino.topo * d.height,
+        base: d.top - j.top + caixaDino.base * d.height
+    };
+
+    for (let i = estrelas.length - 1; i >= 0; i--) {
+        let e = estrelas[i];
+        e.x -= velocidadeChao;
+        let topo = superficieChao() - e.altura - ESTRELA_TAMANHO / 2;
+        e.el.style.left = e.x + "px";
+        e.el.style.top = topo + "px";
+
+        let pegou = dino.dir > e.x && dino.esq < e.x + ESTRELA_TAMANHO &&
+                    dino.base > topo && dino.topo < topo + ESTRELA_TAMANHO;
+        if (pegou) {
+            e.el.remove();
+            estrelas.splice(i, 1);
+            coletarEstrela();
+        } else if (e.x + ESTRELA_TAMANHO < -50) {
+            e.el.remove();
+            estrelas.splice(i, 1);
+        }
+    }
+}
+
+function coletarEstrela() {
+    estrelasColetadas++;
+    pontos += ESTRELA_BONUS;
+    if (estrelasEl) estrelasEl.textContent = "★ " + estrelasColetadas;
+    mostrarInfo(proximoFato());
+}
+
+function mostrarInfo(texto) {
+    infoTextoEl.textContent = texto;
+    infoEl.classList.remove("oculto");
+    infoEl.classList.remove("entrando");
+    void infoEl.offsetWidth;           // reinicia a animação
+    infoEl.classList.add("entrando");
+    clearTimeout(infoTimer);
+    infoTimer = setTimeout(esconderInfo, INFO_DURACAO_MS);
+}
+
+function esconderInfo() {
+    infoEl.classList.add("oculto");
+}
+
+function limparEstrelas() {
+    estrelas.forEach(e => e.el.remove());
+    estrelas = [];
+    estrelasColetadas = 0;
+    sortearEstrela();
+    if (estrelasEl) estrelasEl.textContent = "★ 0";
+    esconderInfo();
+}
+
 function terminarJogo() {
     jogoIniciado = false;
     fimDeJogo = true;
     momentoDaMorte = performance.now();
     velocidadeChao = 0;
+    esconderInfo();
 
     let final = Math.floor(pontos);
     let novoRecorde = final > recorde;
@@ -287,7 +416,7 @@ function terminarJogo() {
 
     mostrarOverlay(
         "Fim de jogo",
-        "Pontos: " + final + "\nRecorde: " + recorde + (novoRecorde ? "\nNovo recorde!" : ""),
+        "Pontos: " + final + "\nEstrelas: " + estrelasColetadas + "\nRecorde: " + recorde + (novoRecorde ? "\nNovo recorde!" : ""),
         "fim"
     );
 
@@ -302,6 +431,7 @@ function terminarJogo() {
 function reiniciarJogo() {
     obstaculos.forEach(o => o.el.remove());
     obstaculos = [];
+    limparEstrelas();
     proximoObstaculoEm = DISTANCIA_MIN;
     pontos = 0;
     fimDeJogo = false;
@@ -377,6 +507,7 @@ function loop(agora) {
         fundoEl.style.backgroundPositionX = fundoOffset + "px";
 
         atualizarObstaculos();
+        atualizarEstrelas();
 
         pontos += velocidadeChao * 0.05;
         if (pontosEl) pontosEl.textContent = formatarPontos(pontos);
