@@ -1,5 +1,5 @@
 <?php
-// Recebe a pontuação no fim da partida e guarda só se for o novo recorde.
+
 require_once "auth.php";
 header("Content-Type: application/json; charset=utf-8");
 

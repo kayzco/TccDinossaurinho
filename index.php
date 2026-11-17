@@ -4,7 +4,6 @@ require_once "auth.php";
 require_once "icones.php";
 exigirLogin();
 
-// recorde atual do jogador (mostrado no "fim de jogo")
 $recorde = 0;
 try {
     require "config.php";
@@ -37,6 +36,7 @@ try {
 
 <div id="jogo">
     <div id="fundo"></div>
+    <div id="fundoNoite"></div>
     <div id="chao"></div>
     <img id="bolinha" src="dinossauro.png">
     <div id="pontos">00000</div>
@@ -46,7 +46,7 @@ try {
         <div class="info-titulo">★ Você sabia? (Era Jurássica)</div>
         <p id="infoEstrelaTexto"></p>
     </div>
-    <div id="mensagemInicio">Pressione espaço para começar</div>
+    <div id="mensagemInicio">Pressione espaço para começar<small>↑ ou espaço: pular &nbsp;&middot;&nbsp; ↓ ou S: agachar</small></div>
 
     <div id="hud">
         <span id="nomeJogador">Olá, <?php echo htmlspecialchars(nomeUsuarioLogado()); ?></span>

@@ -3,7 +3,7 @@ require_once "auth.php";
 require_once "icones.php";
 exigirLogin();
 
-// recorde do jogador (se o banco/coluna não existir, mostra 0)
+
 $recorde = 0;
 try {
     require "config.php";

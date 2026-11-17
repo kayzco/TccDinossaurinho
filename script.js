@@ -1,6 +1,7 @@
 let bolinha = document.getElementById("bolinha");
 let chaoEl = document.getElementById("chao");
 let fundoEl = document.getElementById("fundo");
+let fundoNoiteEl = document.getElementById("fundoNoite");
 
 let posicaoX = 150;
 let posicaoY = 0;
@@ -8,6 +9,7 @@ let velocidadeY = 0;
 let gravidade = 0.5;
 let forcaPulo = -16;
 let noChao = true;
+let teclaBaixo = false;      
 
 
 let jogoIniciado = false;
@@ -80,16 +82,45 @@ function medirCaixa(img) {
     }
 }
 
-function carregarImagem(src, callback) {
+function carregarImagem(src, callback, aoFalhar) {
     let img = new Image();
     img.onload = () => callback(img);
+    img.onerror = () => { if (aoFalhar) aoFalhar(); };
     img.src = src;
 }
 
-carregarImagem(bolinha.getAttribute("src"), (img) => {
-    caixaDino = medirCaixa(img);
-    margemDino = 1 - caixaDino.base;
-    if (noChao) posicaoY = calcularChao();
+
+const ALTURA_DINO = 220;   
+const POSTURAS = {
+    pe:       { src: "dinossauro.png",          caixa: caixaDino, nat: 0, falhou: false },
+    agachado: { src: "dinossauro_agachado.png", caixa: caixaDino, nat: 0, falhou: false }
+};
+let estaAgachado = false;
+
+
+function alturaDaPostura(p) {
+    if (!POSTURAS.pe.nat || !p.nat) return ALTURA_DINO;
+    return ALTURA_DINO * p.nat / POSTURAS.pe.nat;
+}
+
+function aplicarPostura(agachado) {
+    
+    let p = (agachado && !POSTURAS.agachado.falhou) ? POSTURAS.agachado : POSTURAS.pe;
+    estaAgachado = agachado;
+    if (bolinha.getAttribute("src") != p.src) bolinha.setAttribute("src", p.src);
+    bolinha.style.height = alturaDaPostura(p) + "px";
+    caixaDino = p.caixa;
+    margemDino = 1 - p.caixa.base;
+    if (noChao) posicaoY = calcularChao();   
+    bolinha.style.top = posicaoY + "px";
+}
+
+[POSTURAS.pe, POSTURAS.agachado].forEach(p => {
+    carregarImagem(p.src, (img) => {
+        p.caixa = medirCaixa(img);
+        p.nat = img.naturalHeight;
+        aplicarPostura(estaAgachado);
+    }, () => { p.falhou = true; });
 });
 
 let urlChao = getComputedStyle(chaoEl).backgroundImage.replace(/^url\(["']?|["']?\)$/g, "");
@@ -122,20 +153,42 @@ posicaoY = calcularChao();
 bolinha.style.top = posicaoY + "px";
 
 // --- obstáculos ---
-const OBSTACULO_IMAGEM = "obs1.png";   
-const OBSTACULO_ALTURA_MIN = 100;
-const OBSTACULO_ALTURA_MAX = 150;
-const OBSTACULO_LARGURA = 50;
-const DISTANCIA_MIN = 450;     
-const DISTANCIA_MAX = 900;     
 
-let caixaObstaculo = { esq: 0, dir: 1, topo: 0, base: 1 };
-let proporcaoObstaculo = 0;    
-if (OBSTACULO_IMAGEM) {
-    carregarImagem(OBSTACULO_IMAGEM, (img) => {
-        proporcaoObstaculo = img.naturalWidth / img.naturalHeight;
-        caixaObstaculo = medirCaixa(img);
-    });
+const TIPOS_OBSTACULO = [
+    { nome: "espinhos", imagens: ["obs1.png"],   alturaMin: 100, alturaMax: 150, elevacao: 0,   peso: 3, pontosMin: 0 },
+    
+    { nome: "voador",   imagens: ["voador.png"], alturaMin: 120, alturaMax: 120, elevacao: 160, peso: 2, pontosMin: 80 }
+];
+const FRAMES_POR_QUADRO = 10;   
+const OBSTACULO_LARGURA = 50;   
+const DISTANCIA_MIN = 450;
+const DISTANCIA_MAX = 900;
+
+TIPOS_OBSTACULO.forEach(tipo => {
+    tipo.proporcao = 0;
+    tipo.falhou = false;
+    tipo.caixa = { esq: 0, dir: 1, topo: 0, base: 1 };
+    carregarImagem(tipo.imagens[0], (img) => {
+        tipo.proporcao = img.naturalWidth / img.naturalHeight;
+        tipo.caixa = medirCaixa(img);
+    }, () => { tipo.falhou = true; });   
+    tipo.imagens.slice(1).forEach(src => { new Image().src = src; });   
+});
+
+let ultimoTipo = null;
+
+function escolherTipo() {
+    let candidatos = TIPOS_OBSTACULO.filter(t => !t.falhou && pontos >= t.pontosMin);
+    
+    if (ultimoTipo && ultimoTipo.elevacao > 0) candidatos = candidatos.filter(t => t.elevacao == 0);
+    if (candidatos.length == 0) candidatos = [TIPOS_OBSTACULO[0]];
+    let total = candidatos.reduce((soma, t) => soma + t.peso, 0);
+    let sorteio = Math.random() * total;
+    for (let t of candidatos) {
+        sorteio -= t.peso;
+        if (sorteio <= 0) return t;
+    }
+    return candidatos[0];
 }
 
 let obstaculos = [];           
@@ -214,25 +267,30 @@ function superficieChao() {
 }
 
 function criarObstaculo() {
-    let altura = OBSTACULO_ALTURA_MIN + Math.random() * (OBSTACULO_ALTURA_MAX - OBSTACULO_ALTURA_MIN);
+    let tipo = escolherTipo();
+    ultimoTipo = tipo;
+    let altura = tipo.alturaMin + Math.random() * (tipo.alturaMax - tipo.alturaMin);
     let el = document.createElement("div");
-    el.className = "obstaculo";
-    let largura = proporcaoObstaculo ? altura * proporcaoObstaculo : OBSTACULO_LARGURA;
+    el.className = "obstaculo com-imagem";
+    let largura = tipo.proporcao ? altura * tipo.proporcao : OBSTACULO_LARGURA;
     el.style.width = largura + "px";
     el.style.height = altura + "px";
-    if (OBSTACULO_IMAGEM) {
-        el.style.backgroundImage = 'url("' + OBSTACULO_IMAGEM + '")';
-        el.classList.add("com-imagem");
-    }
+    el.style.backgroundImage = 'url("' + tipo.imagens[0] + '")';
     jogoEl.appendChild(el);
-    obstaculos.push({ el: el, x: jogoEl.offsetWidth, largura: largura, altura: altura, caixa: caixaObstaculo });
+    obstaculos.push({ el: el, x: jogoEl.offsetWidth, largura: largura, altura: altura,
+                      caixa: tipo.caixa, elevacao: tipo.elevacao, tipo: tipo, quadro: 0 });
+}
+
+
+function topoObstaculo(o) {
+    return superficieChao() - o.elevacao - o.altura * o.caixa.base;
 }
 
 function atualizarObstaculos() {
     proximoObstaculoEm -= velocidadeChao;
     if (proximoObstaculoEm <= 0) {
         criarObstaculo();
-        let extra = velocidadeChao * 20; 
+        let extra = velocidadeChao * 20;
         proximoObstaculoEm = DISTANCIA_MIN + Math.random() * (DISTANCIA_MAX - DISTANCIA_MIN) + extra;
     }
 
@@ -240,8 +298,17 @@ function atualizarObstaculos() {
         let o = obstaculos[i];
         o.x -= velocidadeChao;
         o.el.style.left = o.x + "px";
-        
-        o.el.style.top = (superficieChao() - o.altura * o.caixa.base) + "px";
+        o.el.style.top = topoObstaculo(o) + "px";
+
+        // batr de asas
+        if (o.tipo.imagens.length > 1) {
+            o.quadro++;
+            let img = o.tipo.imagens[Math.floor(o.quadro / FRAMES_POR_QUADRO) % o.tipo.imagens.length];
+            if (o.imagemAtual != img) {
+                o.imagemAtual = img;
+                o.el.style.backgroundImage = 'url("' + img + '")';
+            }
+        }
 
         if (o.x + o.largura < -50) {
             o.el.remove();
@@ -264,7 +331,7 @@ function colidiu() {
     };
     for (let o of obstaculos) {
         let c = o.caixa;
-        let topoArq = superficieChao() - o.altura * c.base;
+        let topoArq = topoObstaculo(o);
         let visW = (c.dir - c.esq) * o.largura;
         let esqO = o.x + c.esq * o.largura + visW * 0.1;
         let dirO = o.x + c.dir * o.largura - visW * 0.1;
@@ -278,12 +345,12 @@ function colidiu() {
     return false;
 }
 
-// --- estrelinhas (colecionáveis com curiosidades sobre a Era Jurássica) ---
-const ESTRELA_IMAGEM = "estrela.png";   // troque pelo seu PNG quando quiser
+
+const ESTRELA_IMAGEM = "estrela.png";   
 const ESTRELA_TAMANHO = 60;
-const ESTRELA_ALTURA_MIN = 120;          // distância acima do chão (px)
+const ESTRELA_ALTURA_MIN = 120;          
 const ESTRELA_ALTURA_MAX = 300;
-const ESTRELA_DISTANCIA_MIN = 1800;      // distância percorrida entre uma estrela e outra
+const ESTRELA_DISTANCIA_MIN = 1800;      
 const ESTRELA_DISTANCIA_MAX = 4200;
 const ESTRELA_BONUS = 50;
 const INFO_DURACAO_MS = 7000;
@@ -334,7 +401,7 @@ function criarEstrela() {
 function atualizarEstrelas() {
     proximaEstrelaEm -= velocidadeChao;
     if (proximaEstrelaEm <= 0) {
-        // não nasce colada num obstáculo
+        
         let livre = obstaculos.every(o => o.x < jogoEl.offsetWidth - 350);
         if (livre) {
             criarEstrela();
@@ -384,7 +451,7 @@ function mostrarInfo(texto) {
     infoTextoEl.textContent = texto;
     infoEl.classList.remove("oculto");
     infoEl.classList.remove("entrando");
-    void infoEl.offsetWidth;           // reinicia a animação
+    void infoEl.offsetWidth;          
     infoEl.classList.add("entrando");
     clearTimeout(infoTimer);
     infoTimer = setTimeout(esconderInfo, INFO_DURACAO_MS);
@@ -401,6 +468,35 @@ function limparEstrelas() {
     sortearEstrela();
     if (estrelasEl) estrelasEl.textContent = "★ 0";
     esconderInfo();
+}
+
+
+
+const PONTOS_TARDE = 300;
+const PONTOS_NOITE = 300;
+const PONTOS_TRANSICAO = 60;
+
+let nivelNoiteAtual = -1;
+
+
+function nivelNoite(p) {
+    let ciclo = PONTOS_TARDE + PONTOS_NOITE + 2 * PONTOS_TRANSICAO;
+    let t = p % ciclo;
+    if (t < PONTOS_TARDE) return 0;
+    t -= PONTOS_TARDE;
+    if (t < PONTOS_TRANSICAO) return t / PONTOS_TRANSICAO;
+    t -= PONTOS_TRANSICAO;
+    if (t < PONTOS_NOITE) return 1;
+    t -= PONTOS_NOITE;
+    return 1 - t / PONTOS_TRANSICAO;
+}
+
+
+function atualizarNoite() {
+    let n = Math.round(nivelNoite(pontos) * 100) / 100;
+    if (n == nivelNoiteAtual) return;
+    nivelNoiteAtual = n;
+    if (fundoNoiteEl) fundoNoiteEl.style.opacity = n;
 }
 
 function terminarJogo() {
@@ -437,6 +533,8 @@ function reiniciarJogo() {
     fimDeJogo = false;
     esconderOverlay();
     if (pontosEl) pontosEl.textContent = formatarPontos(0);
+    atualizarNoite();
+    ultimoTipo = null;
     iniciarJogo();
 }
 
@@ -458,6 +556,11 @@ document.addEventListener("keydown", function(event) {
     if (event.key == "ArrowRight") posicaoX += 10;
     if (event.key == "ArrowLeft") posicaoX -= 10;
 
+    if (event.key == "ArrowDown" || event.code == "KeyS") {
+        event.preventDefault();
+        teclaBaixo = true;
+    }
+
     let apertouPulo = (event.key == "ArrowUp" || event.code == "Space");
     if (apertouPulo) event.preventDefault();
 
@@ -474,6 +577,11 @@ document.addEventListener("keydown", function(event) {
 
     bolinha.style.left = posicaoX + "px";
 });
+
+document.addEventListener("keyup", function(event) {
+    if (event.key == "ArrowDown" || event.code == "KeyS") teclaBaixo = false;
+});
+window.addEventListener("blur", () => { teclaBaixo = false; });
 
 function loop(agora) {
     if (pausado) {
@@ -493,6 +601,10 @@ function loop(agora) {
 
     bolinha.style.top = posicaoY + "px";
 
+    // agachado só no chão e com o jogo rolando (a hitbox encolhe junto com a imagem)
+    let querAgachar = teclaBaixo && noChao && jogoIniciado;
+    if (querAgachar != estaAgachado) aplicarPostura(querAgachar);
+
     if (jogoIniciado) {
         let tempoDecorrido = (agora - tempoInicio) / 1000; 
         velocidadeChao = Math.min(
@@ -505,12 +617,14 @@ function loop(agora) {
 
         fundoOffset -= velocidadeChao * 0.1; 
         fundoEl.style.backgroundPositionX = fundoOffset + "px";
+        fundoNoiteEl.style.backgroundPositionX = fundoOffset + "px";
 
         atualizarObstaculos();
         atualizarEstrelas();
 
         pontos += velocidadeChao * 0.05;
         if (pontosEl) pontosEl.textContent = formatarPontos(pontos);
+        atualizarNoite();
 
         if (colidiu()) terminarJogo();
     }

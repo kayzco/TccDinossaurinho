@@ -17,7 +17,7 @@ try {
         $top[] = $linha;
     }
 
-    // se o jogador não está no top 10, mostra a posição dele embaixo
+    
     $estaNoTop = false;
     foreach ($top as $t) {
         if ((int)$t["id"] === (int)$meuId) { $estaNoTop = true; }
